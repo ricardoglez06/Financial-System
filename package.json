@@ -1,0 +1,19 @@
+{
+  "name": "financial-system",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:migrate": "turbo run db:migrate --filter=@financial-system/api",
+    "db:seed": "turbo run db:seed --filter=@financial-system/api",
+    "db:generate": "turbo run db:generate --filter=@financial-system/api"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
