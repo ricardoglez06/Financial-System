@@ -1,9 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { authApi } from "@/lib/apiClient";
 import { useAuthStore } from "@/stores/authStore";
 
 export function useAuth() {
-  const { user, isAuthenticated, setAuth, clearAuth } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated, setAuth, clearAuth } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
@@ -25,9 +25,22 @@ export function useAuth() {
     },
   });
 
+  const sessionQuery = useQuery({
+    queryKey: ["session"],
+    queryFn: () => authApi.me().then((r) => r.data.data),
+    enabled: isAuthenticated && hasHydrated,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (sessionQuery.isError && isAuthenticated) {
+    clearAuth();
+  }
+
   return {
-    user,
+    user: sessionQuery.data || user,
     isAuthenticated,
+    hasHydrated,
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
