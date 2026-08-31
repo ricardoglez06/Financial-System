@@ -101,12 +101,42 @@ export class AnalyticsService {
       }
     }
 
-    return Object.entries(grouped).map(([date, data]) => ({
-      date,
-      income: Math.round(data.income * 100) / 100,
-      expenses: Math.round(data.expenses * 100) / 100,
-      net: Math.round((data.income - data.expenses) * 100) / 100,
-    }));
+    // Generate complete date range to fill gaps
+    const result: Array<{ date: string; income: number; expenses: number; net: number }> = [];
+    const currentDate = new Date(start);
+
+    while (currentDate <= end) {
+      let key: string;
+
+      if (groupBy === "day") {
+        key = currentDate.toISOString().split("T")[0];
+      } else if (groupBy === "week") {
+        const weekStart = new Date(currentDate);
+        weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+        key = weekStart.toISOString().split("T")[0];
+      } else {
+        key = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
+      }
+
+      const data = grouped[key] || { income: 0, expenses: 0 };
+      result.push({
+        date: key,
+        income: Math.round(data.income * 100) / 100,
+        expenses: Math.round(data.expenses * 100) / 100,
+        net: Math.round((data.income - data.expenses) * 100) / 100,
+      });
+
+      // Move to next period
+      if (groupBy === "day") {
+        currentDate.setDate(currentDate.getDate() + 1);
+      } else if (groupBy === "week") {
+        currentDate.setDate(currentDate.getDate() + 7);
+      } else {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+    }
+
+    return result;
   }
 
   async getCategoryBreakdown(

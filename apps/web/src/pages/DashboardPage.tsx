@@ -111,7 +111,16 @@ export function DashboardPage() {
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={cashflow || []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="date" className="text-xs" />
+                <XAxis
+                  dataKey="date"
+                  className="text-xs"
+                  tickFormatter={(value) => {
+                    const date = new Date(value);
+                    return format(date, "MMM d");
+                  }}
+                  interval="preserveStartEnd"
+                  minTickGap={50}
+                />
                 <YAxis className="text-xs" />
                 <Tooltip
                   contentStyle={{
@@ -119,6 +128,8 @@ export function DashboardPage() {
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "8px",
                   }}
+                  labelFormatter={(value) => format(new Date(value), "MMMM d, yyyy")}
+                  formatter={(value: number) => formatCurrency(value)}
                 />
                 <Area
                   type="monotone"
