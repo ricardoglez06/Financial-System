@@ -18,17 +18,31 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={toggle}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggle}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
           {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          <span className="sr-only">
+            {isDark ? "Switch to light mode" : "Switch to dark mode"}
+          </span>
         </Button>
 
         <div className="flex items-center gap-2 rounded-lg border px-3 py-1.5">
-          <User className="h-4 w-4 text-muted-foreground" />
+          <User className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <span className="text-sm">{user?.email}</span>
         </div>
 
-        <Button variant="ghost" size="icon" onClick={() => logout()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => logout()}
+          aria-label="Log out"
+        >
           <LogOut className="h-4 w-4" />
+          <span className="sr-only">Log out</span>
         </Button>
       </div>
     </header>

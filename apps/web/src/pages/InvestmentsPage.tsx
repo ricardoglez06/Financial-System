@@ -186,8 +186,14 @@ export function InvestmentsPage() {
                     <TableCell className="text-right">{formatCurrency(Number(inv.principal))}</TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(Number(inv.currentValue))}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => deleteInvestment.mutate(inv.id)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteInvestment.mutate(inv.id)}
+                        aria-label={`Delete investment ${inv.name}`}
+                      >
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">Delete investment</span>
                       </Button>
                     </TableCell>
                   </TableRow>

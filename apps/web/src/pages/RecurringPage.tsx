@@ -203,11 +203,23 @@ export function RecurringPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => generate.mutate(r.id)} title="Generate next">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => generate.mutate(r.id)}
+                          aria-label={`Generate next occurrence for ${r.description || "recurring transaction"}`}
+                        >
                           <Play className="h-4 w-4" />
+                          <span className="sr-only">Generate next occurrence</span>
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteRecurring.mutate(r.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteRecurring.mutate(r.id)}
+                          aria-label={`Delete recurring transaction ${r.description || ""}`}
+                        >
                           <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="sr-only">Delete recurring transaction</span>
                         </Button>
                       </div>
                     </TableCell>

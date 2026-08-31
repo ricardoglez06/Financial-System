@@ -184,8 +184,10 @@ export function BudgetsPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => deleteBudget.mutate(budget.id)}
+                        aria-label={`Delete budget for ${budget.category?.name || "category"}`}
                       >
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">Delete budget</span>
                       </Button>
                     </div>
                   </div>

@@ -255,8 +255,10 @@ export function TransactionsPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(t.id)}
+                        aria-label={`Delete transaction ${t.description || ""}`}
                       >
                         <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        <span className="sr-only">Delete transaction</span>
                       </Button>
                     </TableCell>
                   </TableRow>

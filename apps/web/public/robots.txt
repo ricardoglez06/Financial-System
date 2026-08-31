@@ -1,0 +1,10 @@
+# robots.txt for FinTrack
+User-agent: *
+Allow: /
+
+# Disallow private areas
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://fintrack.app/sitemap.xml

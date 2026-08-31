@@ -107,8 +107,10 @@ export function SavingsPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteGoal.mutate(goal.id)}
+                      aria-label={`Delete savings goal ${goal.name}`}
                     >
                       <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="sr-only">Delete savings goal</span>
                     </Button>
                   </div>
                 </div>

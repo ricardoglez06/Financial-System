@@ -111,8 +111,10 @@ export function AccountsPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteAccount.mutate(account.id)}
+                      aria-label={`Delete account ${account.name}`}
                     >
                       <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="sr-only">Delete account</span>
                     </Button>
                   </div>
                 </div>
