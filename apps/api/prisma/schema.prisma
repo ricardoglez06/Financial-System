@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+  investments   Investment[]
+  accounts      Account[]
+  savingsGoals  SavingsGoal[]
+  recurring     RecurringTransaction[]
+
+  @@map("users")
+}
+
+model Account {
+  id           String        @id @default(cuid())
+  userId       String        @map("user_id")
+  name         String
+  type         AccountType   @default(CHECKING)
+  balance      Decimal       @default(0) @db.Decimal(15, 2)
+  currency     String        @default("USD")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Category {
+  id           String          @id @default(cuid())
+  userId       String          @map("user_id")
+  name         String
+  type         TransactionType
+  colorHex     String          @default("#6366f1") @map("color_hex")
+  icon         String?
+  parentId     String?         @map("parent_id")
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent       Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     Category[]      @relation("CategoryHierarchy")
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, name, type])
+  @@map("categories")
+}
+
+model Transaction {
+  id           String            @id @default(cuid())
+  userId       String            @map("user_id")
+  accountId    String            @map("account_id")
+  categoryId   String            @map("category_id")
+  amount       Decimal           @db.Decimal(15, 2)
+  type         TransactionType
+  date         DateTime          @db.Date
+  description  String?
+  notes        String?
+  isDeductible Boolean           @default(false) @map("is_deductible")
+  isRecurring  Boolean           @default(false) @map("is_recurring")
+  recurringId  String?           @map("recurring_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category     Category          @relation(fields: [categoryId], references: [id])
+  recurring    RecurringTransaction? @relation(fields: [recurringId], references: [id])
+
+  @@index([userId, date])
+  @@index([userId, categoryId, date])
+  @@index([userId, type, date])
+  @@map("transactions")
+}
+
+model RecurringTransaction {
+  id            String             @id @default(cuid())
+  userId        String             @map("user_id")
+  accountId     String             @map("account_id")
+  categoryId    String             @map("category_id")
+  amount        Decimal            @db.Decimal(15, 2)
+  type          TransactionType
+  frequency     RecurringFrequency
+  startDate     DateTime           @db.Date
+  endDate       DateTime?          @db.Date
+  description   String?
+  isDeductible  Boolean            @default(false) @map("is_deductible")
+  isActive      Boolean            @default(true) @map("is_active")
+  lastGenerated DateTime?          @map("last_generated")
+  createdAt     DateTime           @default(now()) @map("created_at")
+
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+
+  @@map("recurring_transactions")
+}
+
+model Budget {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  categoryId   String   @map("category_id")
+  monthlyLimit Decimal  @map("monthly_limit") @db.Decimal(15, 2)
+  month        Int
+  year         Int
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId, month, year])
+  @@map("budgets")
+}
+
+model Investment {
+  id           String         @id @default(cuid())
+  userId       String         @map("user_id")
+  name         String
+  type         InvestmentType
+  ticker       String?
+  principal    Decimal        @db.Decimal(15, 2)
+  currentYield Decimal        @default(0) @map("current_yield") @db.Decimal(15, 2)
+  currentValue Decimal        @default(0) @map("current_value") @db.Decimal(15, 2)
+  purchaseDate DateTime       @db.Date @map("purchase_date")
+  notes        String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("investments")
+}
+
+model SavingsGoal {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  name          String
+  targetAmount  Decimal  @map("target_amount") @db.Decimal(15, 2)
+  currentAmount Decimal  @default(0) @map("current_amount") @db.Decimal(15, 2)
+  targetDate    DateTime? @db.Date @map("target_date")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("savings_goals")
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CASH
+  CREDIT
+  INVESTMENT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum InvestmentType {
+  ETF
+  STOCK
+  BOND
+  CRYPTO
+  MUTUAL_FUND
+  OTHER
+}
