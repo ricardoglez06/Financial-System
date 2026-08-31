@@ -29,11 +29,12 @@ export function useAuth() {
     queryKey: ["session"],
     queryFn: () => authApi.me().then((r) => r.data.data),
     enabled: isAuthenticated && hasHydrated,
-    retry: false,
+    retry: 2,
+    retryDelay: 1000,
     staleTime: 5 * 60 * 1000,
   });
 
-  if (sessionQuery.isError && isAuthenticated) {
+  if (sessionQuery.isError && isAuthenticated && !sessionQuery.isPending) {
     clearAuth();
   }
 
