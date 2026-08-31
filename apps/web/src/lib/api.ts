@@ -21,10 +21,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const currentPath = window.location.pathname;
-      if (currentPath !== "/login" && currentPath !== "/register") {
+      const isSessionCheck = error.config?.url?.includes("/auth/me");
+      const isAuthEndpoint = error.config?.url?.includes("/auth/login") || 
+                             error.config?.url?.includes("/auth/register");
+      
+      if (!isSessionCheck && !isAuthEndpoint) {
         useAuthStore.getState().clearAuth();
-        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
